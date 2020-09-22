@@ -5,6 +5,9 @@ Created on Wed Sep  9 14:16:23 2020
 @author: abazin
 """
 
+import copy
+import numpy as np
+
 def shuffle(k, X):
     Y = copy.deepcopy(X)
     np.random.shuffle(Y[:, k])
@@ -42,32 +45,43 @@ def accuracy(confusion_matrix):
     return R
 
 
+#V1 is ground truth, V2 is predicted
+def mae(V1,V2):
+    S = 0
+    for i in range(len(V1)):
+        S += abs(V1[i]-V2[i])
+    return sum([abs(V1[i]-V2[i]) for i in range(len(V1))])/len(V1)
+
+
+def mse(V1,V2):
+    return sum([(V1[i]-V2[i])**2 for i in range(len(V1))])/len(V1)
+
+
+def rmse(V1,V2):
+    return np.sqrt(mse(V1,V2))
+
+
+def rsq(V1,V2):
+    mean = sum(V1)/len(V1)
+    SStot = sum([(v-mean)**2 for v in V1])
+    SSres = sum([(V1[i]-V2[i])**2 for i in range(len(V1))])
+    return 1-(SSres/SStot)
+    
+
+
 def feature_importance(data_test, target_test, classifier, n_perm):
     
-    R = [0]*len(list_features)
-    
-    target_pred = classifier.predict(data_test)
-    
-    accu0 = accuracy(confusion_matrix(target_test, target_pred))
-    
-    for k in range(len(list_features)):
-    
-        S = 0
-        
-        accu = 0
-        
+    R = [0]*data_test.shape[1] 
+    target_pred = classifier.predict(data_test)   
+    accu0 = accuracy(confusion_matrix(target_test, target_pred)) 
+    for k in range(len(data_test.shape[1])):  
+        S = 0       
+        accu = 0       
         data_testS = copy.deepcopy(data_test)
-
-        for i in range(n_perm):
-                    
-            data_testS = shuffle(k, data_test)
-                    
-            target_pred = classifier.predict(data_testS)
-            
-            accu = accuracy(confusion_matrix(target_test, target_pred))
-            
-            S = S + (accu-accu0)
-            
-        R[k] = S
-        
+        for i in range(n_perm):                   
+            data_testS = shuffle(k, data_test)                  
+            target_pred = classifier.predict(data_testS)           
+            accu = accuracy(confusion_matrix(target_test, target_pred))           
+            S = S + (accu-accu0)           
+        R[k] = S       
     return R
