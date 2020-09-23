@@ -69,7 +69,6 @@ def rsq(V1, V2):
 
 
 def feature_importance(data_test, target_test, classifier, n_perm):
-
     R = [0]*data_test.shape[1]
     target_pred = classifier.predict(data_test)
     accu0 = accuracy(confusion_matrix(target_test, target_pred))
