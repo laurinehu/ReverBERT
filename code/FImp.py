@@ -112,6 +112,6 @@ def optiRF(data,labels):
     # search across 100 different combinations, and use all available cores
     rf_random = RandomizedSearchCV(estimator = rf, param_distributions = random_grid, n_iter = 100, cv = 3, verbose=2, random_state=42, n_jobs = -1)
     
-    rf_random.fit(train_features, train_labels)
+    rf_random.fit(data, labels)
     
     return rf
