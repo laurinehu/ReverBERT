@@ -70,7 +70,7 @@ def rsq(V1, V2):
 
 def feature_importance(data_test, target_test, classifier, n_perm):
     R = [0]*data_test.shape[1]
-    target_pred = classifier.predict(data_test)
+    target_pred = classifier(data_test)
     accu0 = accuracy(confusion_matrix(target_test, target_pred))
     for k in range(len(data_test.shape[1])):
         S = 0
@@ -78,7 +78,8 @@ def feature_importance(data_test, target_test, classifier, n_perm):
         data_testS = copy.deepcopy(data_test)
         for i in range(n_perm):
             data_testS = shuffle(k, data_test)
-            target_pred = classifier.predict(data_testS)
+            data_testS = torch.FloatTensor(data_testS)
+            target_pred = classifier(data_testS)
             accu = accuracy(confusion_matrix(target_test, target_pred))
             S = S + (accu-accu0)
         R[k] = S
