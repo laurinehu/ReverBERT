@@ -74,6 +74,106 @@ def rsqq(x_values, y_values):
     r_squared = correlation_xy**2
     return r_squared
 
+
+def AvCorrCoef(labels,preds):
+    R = 0
+    
+    labels = np.array(labels)
+    preds = np.array(preds)
+    
+    for i in range(labels.shape[1]):
+        
+        avLabels = np.mean(labels[:,i])
+        avPreds = np.mean(preds[:,i])
+        
+        num = 0        
+        denum1 = 0
+        denum2 = 0
+        for j in range(labels.shape[0]):
+            num += (labels[j,i]-avLabels)*(preds[j,i]-avPreds)
+            denum1 += (labels[j,i]-avLabels)**2
+            denum2 += (preds[j,i]-avPreds)**2
+            
+            denum = np.sqrt(denum1*denum2)
+
+        if denum != 0:
+            R += num/denum
+        else:
+            R = 0
+
+    return R/labels.shape[1]
+
+
+
+
+def AvRelErr(labels,preds):
+    R = 0
+    
+    labels = np.array(labels)
+    preds = np.array(preds)
+    
+    for i in range(labels.shape[1]):
+        
+        S = 0
+        for j in range(labels.shape[0]):
+            S += abs(labels[j,i]-preds[j,i])/labels[j,i]
+        R += S/labels.shape[0]
+    
+    return R/labels.shape[1]
+
+
+
+
+        
+def MeanSqErr(labels,preds):
+    R = 0
+    
+    labels = np.array(labels)
+    preds = np.array(preds)
+    
+    for i in range(labels.shape[1]):
+        S = 0
+        for j in range(labels.shape[0]):
+            S += (labels[j,i]-preds[j,i])**2
+        R += S/labels.shape[0]
+    
+    return R
+
+
+
+def AvRootMeanSqErr(labels,preds):
+    R = 0
+    
+    labels = np.array(labels)
+    preds = np.array(preds)
+    
+    for i in range(labels.shape[1]):
+        S = 0
+        for j in range(labels.shape[0]):
+            S += (labels[j,i]-preds[j,i])**2
+        R += np.sqrt(S/labels.shape[0])
+    
+    return R/labels.shape[1]
+    
+    
+def AvRelRootMeanSqErr(labels,preds):
+    R = 0
+    
+    labels = np.array(labels)
+    preds = np.array(preds)
+    
+    for i in range(labels.shape[1]):
+        S = 0
+        S2 = 0
+        AvLabels = np.mean(labels[:,i])
+        for j in range(labels.shape[0]):
+            S += (labels[j,i]-preds[j,i])**2
+            S2 += (labels[j,i]-AvLabels)**2
+        R += np.sqrt(S/S2)
+    
+    return R/labels.shape[1]  
+
+
 def feature_importance(data_test, target_test, classifier, n_perm):
     R = [0]*data_test.shape[1]
     target_pred = classifier.predict(data_test)
@@ -95,6 +195,8 @@ def optiRF(data,labels):
     n_estimators = [int(x) for x in np.linspace(start = 200, stop = 2000, num = 10)]
     # Number of features to consider at every split
     max_features = ['auto', 'sqrt']
+    
+    criterion=['mse', 'mae']
     # Maximum number of levels in tree
     max_depth = [int(x) for x in np.linspace(10, 110, num = 11)]
     max_depth.append(None)
@@ -104,7 +206,7 @@ def optiRF(data,labels):
     min_samples_leaf = [1, 2, 4]
     # Method of selecting samples for training each tree
     bootstrap = [True, False]# Create the random grid
-    random_grid = {'n_estimators': n_estimators, 'max_features': max_features, 'max_depth': max_depth, 'min_samples_split': min_samples_split, 'min_samples_leaf': min_samples_leaf, 'bootstrap': bootstrap}
+    random_grid = {'n_estimators': n_estimators, 'max_features': max_features, 'criterion': criterion, 'max_depth': max_depth, 'min_samples_split': min_samples_split, 'min_samples_leaf': min_samples_leaf, 'bootstrap': bootstrap}
     # Use the random grid to search for best hyperparameters
     # First create the base model to tune
     rf = RandomForestRegressor()
